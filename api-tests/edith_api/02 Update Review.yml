@@ -1,0 +1,26 @@
+info:
+  name: 02 Update Review
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: http://localhost:3000/reviews/1
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "poNumber": "PO-2002",
+        "status": "IN_REVIEW"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
