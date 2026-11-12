@@ -3,43 +3,53 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-
-type Review = {
-  id: number;
-  poNumber: string;
-  status: 'PENDING' | 'IN_REVIEW';
-};
+import { InjectRepository } from '@nestjs/typeorm';
+import type { Repository } from 'typeorm';
+import { Review } from './review.entity.js';
 
 @Injectable()
 export class ReviewsService {
-    // Mock data for demonstration purposes
-  private review: Review = {
-    id: 1,
-    poNumber: 'PO-1001', // Example purchase order number
-    status: 'PENDING',
-  };
+  constructor(
+    // Nest provides the repository used to read and save review records.
+    @InjectRepository(Review)
+    private readonly reviewsRepository: Repository<Review>,
+  ) {}
 
-  findOne(id: number): Review {
-    if (id !== this.review.id) { // Check if the requested review ID matches the mock data
+  async findOne(id: number): Promise<Review> {
+    // Wait for PostgreSQL to find the requested review.
+    const review = await this.reviewsRepository.findOneBy({ id });
+
+    if (!review) {
       throw new NotFoundException(`Review ${id} not found`);
     }
 
-    return this.review;
+    return review;
   }
 
-  // Update the review with the provided purchase order number and status
-  update(id: number, poNumber: unknown, status: unknown): Review {
-    const review = this.findOne(id);
+  async update(
+    id: number,
+    poNumber: unknown,
+    status: unknown,
+  ): Promise<Review> {
+    // Check that the review exists before changing it.
+    const review = await this.findOne(id);
 
+    // Request data must be checked before it is saved.
     if (typeof poNumber !== 'string' || poNumber.trim() === '') {
       throw new BadRequestException('Enter a purchase-order number');
     }
 
     if (status !== 'PENDING' && status !== 'IN_REVIEW') {
-      throw new BadRequestException('Status must be PENDING or IN_REVIEW');
+      throw new BadRequestException(
+        'Status must be PENDING or IN_REVIEW',
+      );
     }
 
-    this.review = { ...review, poNumber: poNumber.trim(), status };
-    return this.review;
+    // Apply only the fields that this endpoint allows users to change.
+    review.poNumber = poNumber.trim();
+    review.status = status;
+
+    // Write the changes to PostgreSQL so they survive a backend restart.
+    return this.reviewsRepository.save(review);
   }
 }
