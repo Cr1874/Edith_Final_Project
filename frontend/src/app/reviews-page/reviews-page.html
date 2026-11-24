@@ -1,0 +1,30 @@
+<main class="page">
+  <h1>Reviews</h1>
+  <p class="subtitle">Compare documents, verify suggestions, and record a decision.</p>
+
+  @if (loading()) {
+    <p class="message">Loading reviews…</p>
+  } @else if (error()) {
+    <p class="message error">{{ error() }}</p>
+  } @else if (reviews().length === 0) {
+    <p class="message">No reviews yet.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr><th>PO number</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        @for (review of reviews(); track review.id) {
+          <tr>
+            <td>{{ review.poNumber }}</td>
+            <td>
+              <span class="status" [attr.data-status]="review.status">
+                {{ review.status === 'IN_REVIEW' ? 'In review' : 'Pending' }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>
