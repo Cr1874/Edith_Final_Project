@@ -5,6 +5,11 @@ import { ReviewsService } from './reviews.service.js';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  @Get()
+  findAll() {
+    return this.reviewsService.findAll();
+}
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.reviewsService.findOne(id);
