@@ -40,9 +40,7 @@ export class ReviewsService {
     }
 
     if (status !== 'PENDING' && status !== 'IN_REVIEW') {
-      throw new BadRequestException(
-        'Status must be PENDING or IN_REVIEW',
-      );
+      throw new BadRequestException('Status must be PENDING or IN_REVIEW');
     }
 
     // Apply only the fields that this endpoint allows users to change.
@@ -54,7 +52,7 @@ export class ReviewsService {
   }
 
   async findAll(): Promise<Review[]> {
-  // Return every review, oldest first, so the list order is predictable.
-  return this.reviewsRepository.find({ order: { id: 'ASC' } });
-}
+    // Return every review, oldest first, so the list order is predictable.
+    return this.reviewsRepository.find({ order: { id: 'ASC' } });
+  }
 }
